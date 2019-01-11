@@ -1,10 +1,10 @@
-#配准算法
-#依赖于opencv库
-#暂为面向过程形式，未来有机会（并没有）可能改写成OOP形式
-
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
+
+#配准算法
+#依赖于opencv库
+#暂为面向过程形式，未来有机会（并没有）可能改写成OOP形式
 
 surf = cv.xfeatures2d.SIFT_create()
 #surf = cv.xfeatures2d.SURF_create(2)

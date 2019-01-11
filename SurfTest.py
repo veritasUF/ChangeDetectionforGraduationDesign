@@ -1,8 +1,7 @@
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
-
-import mySurf
+import myfuncs
 
 img1 = cv.imread('E:/Downloads/burn_1992.png',cv.IMREAD_GRAYSCALE)
 img2 = cv.imread('E:/Downloads/burn_1986.png',cv.IMREAD_GRAYSCALE)
