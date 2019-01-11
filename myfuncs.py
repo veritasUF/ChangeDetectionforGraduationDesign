@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 
 #配准算法
 #依赖于opencv库
@@ -27,6 +28,7 @@ def reg(img1, img2):
     src_val = [ img1.item(int(kp1[m[0].queryIdx].pt[1]), int(kp1[m[0].queryIdx].pt[0])) for m in good ]
     dst_val = [ img2.item(int(kp2[m[0].trainIdx].pt[1]), int(kp2[m[0].trainIdx].pt[0])) for m in good ]
 
+    #辐射配准
     z1 = np.polyfit(dst_val, src_val, 1)
     p1 = np.poly1d(z1)
     #print(p1)
@@ -35,3 +37,41 @@ def reg(img1, img2):
     img3 = cv.warpPerspective(img1,M,img2.shape)
     img4 = np.round(p1(img2))
     return img3,img4
+
+#PCA与作差算法，作差算法中集成了Kmeans聚类
+
+def CD_diff(img1,img2):
+
+    delta=abs(img2-img1)
+    #delta=np.abs(delta)
+    #delta.min()
+    #sh=delta.shape
+    #delta+=np.abs(delta.min())
+
+    Z = delta.reshape(-1,1)
+    #Z = np.float32(Z)
+    res = KMeans(n_clusters=2, random_state=16).fit_predict(Z)
+    res2 = res.reshape((delta.shape))
+
+    return res2
+
+def Img_PCA(delta):
+    U,S,V=np.linalg.svd(delta)
+    SS=np.zeros(U.shape)
+    for i in range(S.shape[0]):
+        SS[i][i]=S[i]
+
+    def Pick_k(S):
+        sval=np.sum(S)
+        for i in range(S.shape[0]):
+            if np.sum(S[:i])>=0.6*sval:
+                break
+        return i+1
+
+    k=Pick_k(S)
+    Uk=U[:,0:k]
+    Sk=SS[0:k,0:k]
+    Vk=V[0:k,:]
+    im=np.dot(np.dot(Uk,Sk),Vk)
+    return np.round(im)
+
