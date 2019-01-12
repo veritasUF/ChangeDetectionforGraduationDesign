@@ -40,16 +40,11 @@ def reg(img1, img2):
 
 #PCA与作差算法，作差算法中集成了Kmeans聚类
 
-def CD_diff(img1,img2):
+def diff(img1,img2):
 
     delta=abs(img2-img1)
-    #delta=np.abs(delta)
-    #delta.min()
-    #sh=delta.shape
-    #delta+=np.abs(delta.min())
 
     Z = delta.reshape(-1,1)
-    #Z = np.float32(Z)
     res = KMeans(n_clusters=2, random_state=16).fit_predict(Z)
     res2 = res.reshape((delta.shape))
 
