@@ -7,8 +7,8 @@ from sklearn import metrics
 from myfuncs import *
 from osgeo import gdal
 
-img1 = cv.imread('E:/Downloads/D11.png', cv.IMREAD_GRAYSCALE)
-img2 = cv.imread('E:/Downloads/D12.png', cv.IMREAD_GRAYSCALE)
+img1 = cv.imread('E:/Downloads/BA1.png', cv.IMREAD_GRAYSCALE)
+img2 = cv.imread('E:/Downloads/BA2.png', cv.IMREAD_GRAYSCALE)
 
 # img2 = np.uint8(np.float32(img2) * (img1.sum()/img1.size*img2.size/img2.sum()))
 
@@ -44,15 +44,14 @@ else:
     a = cv.morphologyEx(a, cv.MORPH_OPEN, kernel)
 
 plt.figure()
-plt.subplot(231)
+plt.subplot(131)
 plt.imshow(img1, 'gray')
-plt.subplot(234)
+plt.axis('off')
+plt.subplot(132)
 plt.imshow(img2, 'gray')
-plt.subplot(232)
-plt.imshow(img3, 'gray')
-plt.subplot(235)
-plt.imshow(img4, 'gray')
+plt.axis('off')
 plt.subplot(133)
 plt.imshow(a, 'gray')
+plt.axis('off')
 
 plt.show()

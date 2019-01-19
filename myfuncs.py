@@ -20,7 +20,7 @@ def reg(img1, img2):
 
     good = []
     for m, n in matches:
-        if m.distance < 0.6 * n.distance:  # 阈值是怎么确定的
+        if m.distance < 0.55 * n.distance:  # 阈值是怎么确定的
             good.append([m])
 
     src_pts = np.float32([kp1[m[0].queryIdx].pt for m in good])
@@ -30,13 +30,16 @@ def reg(img1, img2):
     dst_val = [img2.item(int(kp2[m[0].trainIdx].pt[1]), int(kp2[m[0].trainIdx].pt[0])) for m in good]
 
     img9 = cv.drawMatchesKnn(img1, kp1, img2, kp2, good, None, flags=2)
-    plt.imshow(img9), plt.show()
+    plt.imshow(img9), plt.axis('off'), plt.show()
 
     # 辐射配准
     z1 = np.polyfit(dst_val, src_val, 1)
     p1 = np.poly1d(z1)
+
+    plt.figure()
+    plt.scatter(dst_val, src_val)
     # print(p1)
-    M, mask = cv.findHomography(src_pts, dst_pts)
+    M, mask = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 1.0)
 
     img3 = cv.warpPerspective(img1, M, (img2.shape[1], img2.shape[0]))
     img4 = np.round(p1(img2))
@@ -64,8 +67,10 @@ def Img_PCA(delta):
 
     def Pick_k(s):
         sval = np.sum(s)
+        sum_count = 0
         for i in range(s.shape[0]):
-            if np.sum(s[:i]) >= 0.6 * sval:
+            sum_count += s[i]
+            if sum_count  >= 0.6 * sval:
                 break
         return i + 1
 
