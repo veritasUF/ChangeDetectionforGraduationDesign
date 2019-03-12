@@ -7,10 +7,9 @@ from sklearn import metrics
 from myfuncs import *
 from osgeo import gdal
 
-img1 = cv.imread('E:/Downloads/BA1.png', cv.IMREAD_GRAYSCALE)
-img2 = cv.imread('E:/Downloads/BA2.png', cv.IMREAD_GRAYSCALE)
-
-# img2 = np.uint8(np.float32(img2) * (img1.sum()/img1.size*img2.size/img2.sum()))
+img1 = cv.imread('E:/Downloads/HEB1.tif', cv.IMREAD_GRAYSCALE)
+img2 = cv.imread('E:/Downloads/HEB3.tif', cv.IMREAD_GRAYSCALE)
+#imgg = gdal.Open('E:/Downloads/GF2_PMS1_E126.2_N45.6_20171201_L1A0002813059/GF2_PMS1_E126.2_N45.6_20171201_L1A0002813059-PAN1.tiff')
 
 img3, img4 = reg(img1, img2)
 '''
@@ -22,20 +21,11 @@ plt.subplot(223)
 plt.imshow(img3, 'gray')
 plt.subplot(224)
 plt.imshow(img4, 'gray'), plt.show()
-
-delta = abs(img3-img4)
-Z = delta.reshape(-1, 1)
-y_pred = MiniBatchKMeans(n_clusters=k, batch_size = 200, random_state=9).fit_predict(Z)
-score= metrics.calinski_harabaz_score(Z, y_pred)
-
-
-a = Img_PCA(CD_diff(img3,img4))
-ret,a = cv.threshold(a,1,255,cv.THRESH_BINARY)
 '''
 
 a = Img_PCA(diff(img3, img4))
 
-kernel = np.ones((3, 3), np.uint8)
+kernel = np.ones((7, 7), np.uint8)
 if a.sum() > a.size/2:
     a = np.float32(127 * a)
     a = cv.morphologyEx(a, cv.MORPH_CLOSE, kernel)

@@ -29,20 +29,20 @@ def reg(img1, img2):
     src_val = [img1.item(int(kp1[m[0].queryIdx].pt[1]), int(kp1[m[0].queryIdx].pt[0])) for m in good]
     dst_val = [img2.item(int(kp2[m[0].trainIdx].pt[1]), int(kp2[m[0].trainIdx].pt[0])) for m in good]
 
-    img9 = cv.drawMatchesKnn(img1, kp1, img2, kp2, good, None, flags=2)
-    plt.imshow(img9), plt.axis('off'), plt.show()
+    # img9 = cv.drawMatchesKnn(img1, kp1, img2, kp2, good, None, flags=2)
+    # plt.imshow(img9), plt.axis('off'), plt.show()
 
     # 辐射配准
     z1 = np.polyfit(dst_val, src_val, 1)
     p1 = np.poly1d(z1)
 
-    plt.figure()
-    plt.scatter(dst_val, src_val)
+    # plt.figure()
+    # plt.scatter(dst_val, src_val)
     # print(p1)
     M, mask = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 1.0)
 
     img3 = cv.warpPerspective(img1, M, (img2.shape[1], img2.shape[0]))
-    img4 = np.round(p1(img2))
+    img4 = np.uint8(np.round(p1(img2)))
 
     return img3, img4
 
@@ -71,8 +71,7 @@ def Img_PCA(delta):
         for i in range(s.shape[0]):
             sum_count += s[i]
             if sum_count  >= 0.6 * sval:
-                break
-        return i + 1
+                return i + 1
 
     k = Pick_k(S)
     Uk = U[:, 0:k]
