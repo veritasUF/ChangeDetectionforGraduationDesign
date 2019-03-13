@@ -2,6 +2,8 @@ import cv2 as cv
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from time import time
 
 # 配准算法
 # 依赖于opencv库
@@ -11,7 +13,9 @@ surf = cv.xfeatures2d.SIFT_create()
 
 # surf = cv.xfeatures2d.SURF_create(20)
 
+
 def reg(img1, img2):
+    t0 = time()
     kp1, des1 = surf.detectAndCompute(img1, None)
     kp2, des2 = surf.detectAndCompute(img2, None)
 
@@ -44,38 +48,48 @@ def reg(img1, img2):
     img3 = cv.warpPerspective(img1, M, (img2.shape[1], img2.shape[0]))
     img4 = np.uint8(np.round(p1(img2)))
 
+    print(time() - t0)
     return img3, img4
 
 
 # PCA与作差算法，作差算法中集成了Kmeans聚类
 
 def diff(img1, img2):
+    t0 = time()
     delta = abs(img2 - img1)
 
     Z = delta.reshape(-1, 1)
     res = KMeans(n_clusters=2, random_state=16).fit_predict(Z)
     res2 = res.reshape(delta.shape)
 
+    print(time() - t0)
     return res2
 
 
-def Img_PCA(delta):
-    U, S, V = np.linalg.svd(delta)
-    SS = np.zeros(U.shape)
-    for i in range(S.shape[0]):
-        SS[i][i] = S[i]
+def Img_PCA(img1):
+    t0 = time()
 
-    def Pick_k(s):
-        sval = np.sum(s)
-        sum_count = 0
-        for i in range(s.shape[0]):
-            sum_count += s[i]
-            if sum_count  >= 0.6 * sval:
-                return i + 1
-
-    k = Pick_k(S)
-    Uk = U[:, 0:k]
-    Sk = SS[0:k, 0:k]
-    Vk = V[0:k, :]
-    im = np.dot(np.dot(Uk, Sk), Vk)
-    return np.int8(np.round(im))
+    pca = PCA(n_components=0.8, svd_solver='full', whiten=True)
+    sig = pca.fit_transform(img1)
+    img = pca.inverse_transform(sig)
+    print(time()-t0)
+    return img
+    # U, S, V = np.linalg.svd(delta)
+    # SS = np.zeros(U.shape)
+    # for i in range(S.shape[0]):
+    #     SS[i][i] = S[i]
+    #
+    # def Pick_k(s):
+    #     sval = np.sum(s)
+    #     sum_count = 0
+    #     for i in range(s.shape[0]):
+    #         sum_count += s[i]
+    #         if sum_count  >= 0.6 * sval:
+    #             return i + 1
+    #
+    # k = Pick_k(S)
+    # Uk = U[:, 0:k]
+    # Sk = SS[0:k, 0:k]
+    # Vk = V[0:k, :]
+    # im = np.dot(np.dot(Uk, Sk), Vk)
+    # return np.int8(np.round(im))

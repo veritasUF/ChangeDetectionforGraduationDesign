@@ -11,6 +11,10 @@ img1 = cv.imread('E:/Downloads/HEB1.tif', cv.IMREAD_GRAYSCALE)
 img2 = cv.imread('E:/Downloads/HEB3.tif', cv.IMREAD_GRAYSCALE)
 img1, img2 = reg(img1, img2)
 
+a = np.uint8(diff(Img_PCA(img1), Img_PCA(img2))) #差值图像
+if a.sum() < a.size/2:
+    a = 1 - a
+
 kernel = np.ones((7, 7), np.uint8)  # 阈值到底是怎么确定的
 opening = cv.morphologyEx(img1, cv.MORPH_OPEN, kernel)
 opening2 = cv.morphologyEx(img2, cv.MORPH_OPEN, kernel)
@@ -39,6 +43,7 @@ mask = cv.dilate(mask, kernel, iterations=4)
 
 # 掩住！再直线检测
 th3 = np.multiply(th3, mask)
+th3 = np.multiply(th3, a)
 mask2 = np.zeros(th2.shape, np.uint8)
 lines = cv.HoughLinesP(th3, 1, np.pi/720, 100, minLineLength=200, maxLineGap=20)
 length = np.array([((line[0][0]-line[0][2])**2+(line[0][1]-line[0][3])**2)**0.5 for line in lines])

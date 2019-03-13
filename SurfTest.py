@@ -7,11 +7,11 @@ from sklearn import metrics
 from myfuncs import *
 from osgeo import gdal
 
-img1 = cv.imread('E:/Downloads/HEB1.tif', cv.IMREAD_GRAYSCALE)
-img2 = cv.imread('E:/Downloads/HEB3.tif', cv.IMREAD_GRAYSCALE)
+img1 = cv.imread('E:/Downloads/HEB1R.tif', cv.IMREAD_GRAYSCALE)
+img2 = cv.imread('E:/Downloads/HEB2R.tif', cv.IMREAD_GRAYSCALE)
 #imgg = gdal.Open('E:/Downloads/GF2_PMS1_E126.2_N45.6_20171201_L1A0002813059/GF2_PMS1_E126.2_N45.6_20171201_L1A0002813059-PAN1.tiff')
 
-img3, img4 = reg(img1, img2)
+img3, img4 = img1, img2
 '''
 plt.subplot(221)
 plt.imshow(img1, 'gray')
@@ -23,15 +23,12 @@ plt.subplot(224)
 plt.imshow(img4, 'gray'), plt.show()
 '''
 
-a = Img_PCA(diff(img3, img4))
+a = np.uint8(diff(Img_PCA(img3), Img_PCA(img4)))
 
 kernel = np.ones((7, 7), np.uint8)
-if a.sum() > a.size/2:
-    a = np.float32(127 * a)
-    a = cv.morphologyEx(a, cv.MORPH_CLOSE, kernel)
-else:
-    a = np.float32(127 * a)
-    a = cv.morphologyEx(a, cv.MORPH_OPEN, kernel)
+if a.sum() < a.size/2:
+    a = 1 - a
+a = cv.morphologyEx(a, cv.MORPH_CLOSE, kernel)
 
 plt.figure()
 plt.subplot(131)
@@ -43,5 +40,6 @@ plt.axis('off')
 plt.subplot(133)
 plt.imshow(a, 'gray')
 plt.axis('off')
+
 
 plt.show()
