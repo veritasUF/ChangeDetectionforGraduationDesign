@@ -11,9 +11,7 @@ img1 = cv.imread('E:/Downloads/HEB1.tif', cv.IMREAD_GRAYSCALE)
 img2 = cv.imread('E:/Downloads/HEB3.tif', cv.IMREAD_GRAYSCALE)
 img1, img2 = reg(img1, img2)
 
-a = np.uint8(diff(Img_PCA(img1), Img_PCA(img2))) #差值图像
-if a.sum() < a.size/2:
-    a = 1 - a
+a = ChangeDetection(img1, img2, 7)
 
 kernel = np.ones((7, 7), np.uint8)  # 阈值到底是怎么确定的
 opening = cv.morphologyEx(img1, cv.MORPH_OPEN, kernel)
@@ -24,7 +22,6 @@ th3 = cv.adaptiveThreshold(opening2, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_B
 # 确保二值化中包含跑道的部分为亮部，去噪点
 
 th2 = 255 - th2 if th2.sum() > th2.size / 2 else th2
-
 th3 = 255 - th3 if th3.sum() > th3.size / 2 else th3
 th2 = cv.morphologyEx(th2, cv.MORPH_OPEN, kernel)
 th3 = cv.morphologyEx(th3, cv.MORPH_OPEN, kernel)

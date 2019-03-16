@@ -23,12 +23,7 @@ plt.subplot(224)
 plt.imshow(img4, 'gray'), plt.show()
 '''
 
-a = np.uint8(diff(Img_PCA(img3), Img_PCA(img4)))
 
-kernel = np.ones((7, 7), np.uint8)
-if a.sum() < a.size/2:
-    a = 1 - a
-a = cv.morphologyEx(a, cv.MORPH_CLOSE, kernel)
 
 plt.figure()
 plt.subplot(131)

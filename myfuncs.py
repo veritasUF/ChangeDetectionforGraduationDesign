@@ -15,7 +15,6 @@ surf = cv.xfeatures2d.SIFT_create()
 
 
 def reg(img1, img2):
-    t0 = time()
     kp1, des1 = surf.detectAndCompute(img1, None)
     kp2, des2 = surf.detectAndCompute(img2, None)
 
@@ -40,29 +39,57 @@ def reg(img1, img2):
     z1 = np.polyfit(dst_val, src_val, 1)
     p1 = np.poly1d(z1)
 
-    # plt.figure()
-    # plt.scatter(dst_val, src_val)
-    # print(p1)
     M, mask = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 1.0)
 
     img3 = cv.warpPerspective(img1, M, (img2.shape[1], img2.shape[0]))
     img4 = np.uint8(np.round(p1(img2)))
 
-    print(time() - t0)
     return img3, img4
+
+
+def reg4(img1, img2):
+    kp1, des1 = surf.detectAndCompute(img1[0], None)
+    kp2, des2 = surf.detectAndCompute(img2[0], None)
+
+    bf = cv.BFMatcher()
+    matches = bf.knnMatch(des1, des2, k=2)
+
+    good = []
+    for m, n in matches:
+        if m.distance < 0.55 * n.distance:  # 阈值是怎么确定的
+            good.append([m])
+
+    src_pts = np.float32([kp1[m[0].queryIdx].pt for m in good])
+    dst_pts = np.float32([kp2[m[0].trainIdx].pt for m in good])
+
+    src_val = [img1[0].item(int(kp1[m[0].queryIdx].pt[1]), int(kp1[m[0].queryIdx].pt[0])) for m in good]
+    dst_val = [img2[0].item(int(kp2[m[0].trainIdx].pt[1]), int(kp2[m[0].trainIdx].pt[0])) for m in good]
+
+    # img9 = cv.drawMatchesKnn(img1, kp1, img2, kp2, good, None, flags=2)
+    # plt.imshow(img9), plt.axis('off'), plt.show()
+
+    # 辐射配准
+    # z1 = np.polyfit(dst_val, src_val, 1)
+    # p1 = np.poly1d(z1)
+
+    M, mask = cv.findHomography(src_pts, dst_pts, cv.RANSAC, 1.0)
+
+    img3 = np.array([cv.warpPerspective(img1[i], M, (img2[i].shape[1], img2[i].shape[0])) for i in range(4)])
+    img4 = np.array([np.uint8(np.round(img2[i])) for i in range(4)])
+
+    return img3, img4
+
 
 
 # PCA与作差算法，作差算法中集成了Kmeans聚类
 
 def diff(img1, img2):
-    t0 = time()
     delta = abs(img2 - img1)
 
     Z = delta.reshape(-1, 1)
     res = KMeans(n_clusters=2, random_state=16).fit_predict(Z)
     res2 = res.reshape(delta.shape)
 
-    print(time() - t0)
     return res2
 
 
@@ -74,22 +101,19 @@ def Img_PCA(img1):
     img = pca.inverse_transform(sig)
     print(time()-t0)
     return img
-    # U, S, V = np.linalg.svd(delta)
-    # SS = np.zeros(U.shape)
-    # for i in range(S.shape[0]):
-    #     SS[i][i] = S[i]
-    #
-    # def Pick_k(s):
-    #     sval = np.sum(s)
-    #     sum_count = 0
-    #     for i in range(s.shape[0]):
-    #         sum_count += s[i]
-    #         if sum_count  >= 0.6 * sval:
-    #             return i + 1
-    #
-    # k = Pick_k(S)
-    # Uk = U[:, 0:k]
-    # Sk = SS[0:k, 0:k]
-    # Vk = V[0:k, :]
-    # im = np.dot(np.dot(Uk, Sk), Vk)
-    # return np.int8(np.round(im))
+
+
+# 变化检测方法
+# n为要丢弃的检测结果的最大直径，默认为0，即保留所有变化的点
+# 未集成配准
+def ChangeDetection(img1, img2, n=0):
+    change = np.uint8(diff(Img_PCA(img1), Img_PCA(img2)))
+    if change.sum() < change.size / 2:
+        change = 1 - change
+
+    if n == 0:
+        return change
+
+    kernel = np.ones((n, n), np.uint8)
+    change = cv.morphologyEx(change, cv.MORPH_CLOSE, kernel)
+    return change
