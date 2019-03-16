@@ -106,7 +106,7 @@ def Img_PCA(img1):
 # 变化检测方法
 # n为要丢弃的检测结果的最大直径，默认为0，即保留所有变化的点
 # 未集成配准
-def ChangeDetection(img1, img2, n=0):
+def CDetect(img1, img2, n=0):
     change = np.uint8(diff(Img_PCA(img1), Img_PCA(img2)))
     if change.sum() < change.size / 2:
         change = 1 - change
@@ -117,3 +117,32 @@ def ChangeDetection(img1, img2, n=0):
     kernel = np.ones((n, n), np.uint8)
     change = cv.morphologyEx(change, cv.MORPH_CLOSE, kernel)
     return change
+
+
+def covw(A, B, w):
+
+    def meanw(X, W):
+        return (X*W).sum() / W.sum()
+
+    C = np.vstack((A, B))
+    N = C[0].__len__()
+    mn = [meanw(i, w) for i in C]
+    for i in range(C.__len__()):
+        C[i] -= mn[i]
+    swn = (N-1)*sum(w/N)
+    ans = [[(sum(w*i*j))/swn for i in C] for j in C]
+    return np.array(ans)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
