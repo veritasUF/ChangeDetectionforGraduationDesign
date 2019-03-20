@@ -7,8 +7,8 @@ from sklearn import metrics
 from myfuncs import *
 from osgeo import gdal
 
-img1 = cv.imread('E:/Downloads/HEB1.tif', cv.IMREAD_GRAYSCALE)
-img2 = cv.imread('E:/Downloads/HEB3.tif', cv.IMREAD_GRAYSCALE)
+img1 = cv.imread('HEB1.tif', cv.IMREAD_GRAYSCALE)
+img2 = cv.imread('HEB3.tif', cv.IMREAD_GRAYSCALE)
 img1, img2 = reg(img1, img2)
 
 a = ChangeDetection(img1, img2, 7)
@@ -20,7 +20,6 @@ th2 = cv.adaptiveThreshold(opening, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BI
 th3 = cv.adaptiveThreshold(opening2, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY, 151, 5)
 
 # 确保二值化中包含跑道的部分为亮部，去噪点
-
 th2 = 255 - th2 if th2.sum() > th2.size / 2 else th2
 th3 = 255 - th3 if th3.sum() > th3.size / 2 else th3
 th2 = cv.morphologyEx(th2, cv.MORPH_OPEN, kernel)
