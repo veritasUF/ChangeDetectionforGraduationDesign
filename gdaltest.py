@@ -4,17 +4,18 @@ import csv
 import scipy.linalg as SL
 import scipy.special as SP
 import matplotlib.pyplot as plt
+from sklearn.cluster import SpectralClustering
 from myfuncs import *
 from osgeo import gdal
 
 img1 = gdal.Open('HEBMS1.tif')
-img2 = gdal.Open('HEBMS2.tif')
+img2 = gdal.Open('HEBMS4.tif')
 N = img1.RasterCount
 rasters1 = np.array([np.uint8(img1.GetRasterBand(i).ReadAsArray() / 4) for i in range(1, N + 1)])
 rasters2 = np.array([np.uint8(img2.GetRasterBand(i).ReadAsArray() / 4) for i in range(1, N + 1)])
 rasters1, rasters2 = reg4(rasters1, rasters2, N)
-imgg1 = cv.merge((rasters1[2], rasters1[1], rasters1[3]))
-imgg2 = np.uint8(cv.merge((rasters2[2], rasters2[1], rasters2[3])))
+imgg1 = cv.merge((rasters1[2], rasters1[1], rasters1[0]))
+imgg2 = np.uint8(cv.merge((rasters2[2], rasters2[1], rasters2[0])))
 sp = rasters1[0].shape
 rasters1 = np.array([rasters1[i].reshape(-1) for i in range(N)], np.float64)
 rasters2 = np.array([rasters2[i].reshape(-1) for i in range(N)], np.float64)
@@ -22,7 +23,7 @@ rasters2 = np.array([rasters2[i].reshape(-1) for i in range(N)], np.float64)
 weight = np.array([1 for i in rasters1[0]])
 delta = rasters1
 
-for __iter__ in range(1):
+for __iter__ in range(2):
     covxy = np.cov(rasters1, rasters2, aweights=weight)
     av1 = np.average(rasters1, 1, weight)
     av2 = np.average(rasters2, 1, weight)
@@ -64,18 +65,23 @@ for __iter__ in range(1):
 #     csv_writer = csv.writer(csv_file)
 #     for row in delta:
 #         csv_writer.writerow(row)
-res2 = np.array([255 if i > 0.0001 else 0 for i in weight], np.uint8)
-res2 = res2.reshape(sp)
-kernel = np.ones((3, 3), np.uint8)
-res2 = cv.morphologyEx(res2, cv.MORPH_CLOSE, kernel)
+# res2 = np.array([255 if i > 0 else 0 for i in weight], np.uint8)
+# res2 = res2.reshape(sp)
+# kernel = np.ones((3, 3), np.uint8)
+# res2 = cv.morphologyEx(res2, cv.MORPH_CLOSE, kernel)
 # plt.imshow(res2, 'gray'), plt.show()
 
-# Z = (np.sum(delta*delta, axis=0)**0.5).reshape(-1, 1)
-# res = KMeans(n_clusters=3, random_state=16).fit_predict(Z)
-# res2 = res.reshape(sp)
+Z = (np.sum(delta*delta, axis=0)**0.5).reshape(-1, 1)
+res = KMeans(n_clusters=4, init='k-means++', n_jobs=-1).fit_predict(Z)
+res2 = res.reshape(sp)
 
 plt.figure()
-plt.subplot(121), plt.imshow(res2, 'gray')
-plt.subplot(122), plt.imshow(imgg1-imgg2), plt.show()
+plt.subplot(131)
+plt.imshow(imgg1, 'gray')
+plt.subplot(132)
+plt.imshow(imgg2, 'gray')
+plt.subplot(133)
+plt.imshow(res2, 'gray')
+plt.show()
 
 cv.waitKey(0)

@@ -11,7 +11,7 @@ img1 = cv.imread('HEB1.tif', cv.IMREAD_GRAYSCALE)
 img2 = cv.imread('HEB3.tif', cv.IMREAD_GRAYSCALE)
 img1, img2 = reg(img1, img2)
 
-a = ChangeDetection(img1, img2, 7)
+a = CDetect(img1, img2, 7)
 
 kernel = np.ones((7, 7), np.uint8)  # 阈值到底是怎么确定的
 opening = cv.morphologyEx(img1, cv.MORPH_OPEN, kernel)
@@ -46,7 +46,10 @@ length = np.array([((line[0][0]-line[0][2])**2+(line[0][1]-line[0][3])**2)**0.5 
 mx = length.max()
 for line in lines:
     x1, y1, x2, y2 = line[0]
-    cv.line(mask2, (x1, y1), (x2, y2), 255, 2)
+    if ((x2-x1)**2+(y2-y1)**2)**0.5 == mx:
+        cv.line(mask2, (x1, y1), (x2, y2), 255, 2)
+    else:
+        cv.line(mask2, (x1, y1), (x2, y2), 128, 2)
 
 plt.subplot(231)
 plt.imshow(img1, 'gray'), plt.axis('off')

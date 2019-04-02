@@ -18,11 +18,11 @@ sp = (1264, 976)
 # plt.imshow(res2, 'gray'), plt.show()
 
 Z = (np.sum(delta*delta, axis=0)**0.5).reshape(-1, 1)
-res = KMeans(n_clusters=4, random_state=16).fit_predict(Z)
+res = KMeans(n_clusters=8, random_state=16).fit_predict(Z)
 res2 = np.uint8(res.reshape(sp))
-for i in range(res2.shape[0]):
-    for j in range(res2.shape[1]):
-        res2[i][j] = 1 if res2[i][j] == 1 else 0
+# for i in range(res2.shape[0]):
+#     for j in range(res2.shape[1]):
+#         res2[i][j] = 1 if res2[i][j] == 1 else 0
 
 # res2 = 1 - res2 if res2.sum() < res2.size / 2 else res2
 # kernel = np.ones((7, 7), np.uint8)

@@ -91,7 +91,7 @@ def diff(img1, img2):
     delta = abs(img2 - img1)
 
     Z = delta.reshape(-1, 1)
-    res = KMeans(n_clusters=2, random_state=16).fit_predict(Z)
+    res = KMeans(n_clusters=2, init='k-means++', n_jobs=-1).fit_predict(Z)
     res2 = res.reshape(delta.shape)
 
     return res2
