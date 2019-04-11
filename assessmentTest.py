@@ -41,7 +41,7 @@ mask = cv.dilate(mask, kernel, iterations=4)
 th3 = np.multiply(th3, mask)
 th3 = np.multiply(th3, a)
 mask2 = np.zeros(th2.shape, np.uint8)
-lines = cv.HoughLinesP(th3, 1, np.pi/720, 100, minLineLength=200, maxLineGap=20)
+lines = cv.HoughLinesP(th3, 1, np.pi/720, 100, minLineLength=200, maxLineGap=5)
 length = np.array([((line[0][0]-line[0][2])**2+(line[0][1]-line[0][3])**2)**0.5 for line in lines])
 mx = length.max()
 for line in lines:
