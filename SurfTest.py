@@ -5,15 +5,15 @@ from sklearn.cluster import KMeans
 from myfuncs import *
 from osgeo import gdal
 
-# img1 = cv.imread('E:/Downloads/HEBMS1.tif', cv.IMREAD_UNCHANGED)
-# img2 = cv.imread('E:/Downloads/HEBMS3.tif', cv.IMREAD_UNCHANGED)
+img1 = cv.imread('E:/Downloads/HEB1.tif', cv.IMREAD_UNCHANGED)
+img2 = cv.imread('E:/Downloads/HEB3.tif', cv.IMREAD_UNCHANGED)
 
 # img3, img4 = reg(img1, img2)
-img1 = gdal.Open('HEBMS1.tif')
-img2 = gdal.Open('HEBMS3.tif')
-
-img1 = np.array(img1.GetRasterBand(2).ReadAsArray()/4, np.uint8)
-img2 = np.array(img2.GetRasterBand(2).ReadAsArray()/4, np.uint8)
+# img1 = gdal.Open('HEBMS1.tif')
+# img2 = gdal.Open('HEBMS3.tif')
+#
+# img1 = np.array(img1.GetRasterBand(2).ReadAsArray()/4, np.uint8)
+# img2 = np.array(img2.GetRasterBand(2).ReadAsArray()/4, np.uint8)
 
 img1, img2 = reg(img1, img2)
 '''

@@ -16,7 +16,7 @@ rasters2 = np.array([np.uint8(img2.GetRasterBand(i).ReadAsArray() / 4) for i in 
 rasters1, rasters2 = reg4(rasters1, rasters2, N)
 imgg1 = cv.merge((rasters1[2], rasters1[1], rasters1[0]))
 imgg2 = np.uint8(cv.merge((rasters2[2], rasters2[1], rasters2[0])))
-res2 = CDetect4(rasters1, rasters2, 5, N, 3)
+res2 = CDetect4(rasters1, rasters2, 10, N, 3)
 
 plt.figure()
 plt.subplot(131)
