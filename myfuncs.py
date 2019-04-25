@@ -100,31 +100,59 @@ def diff(img1, img2):
 
 
 def Img_PCA(img1):
-    pca = PCA(n_components=0.8, svd_solver='full', whiten=True)
+    pca = PCA(n_components=0.9, svd_solver='full')
     sig = pca.fit_transform(img1)
     img = pca.inverse_transform(sig)
     return img
 
 
-def CDetect(img1, img2, n=0):
+def CDetect(img1, img2, max_iter=1, n=0):
     # 变化检测方法
     # n为要丢弃的检测结果的最大直径，默认为0，即保留所有变化的点
     # 未集成配准
-    change = np.uint8(diff(Img_PCA(img1), Img_PCA(img2)))
-    if change.sum() < change.size / 2:
-        change = 1 - change
+    sp=img1.shape
+    rasters1 = np.float64(img1.reshape(-1))
+    rasters2 = np.float64(img2.reshape(-1))
 
-    if n == 0:
-        return change
+    weight = np.ones(sp).reshape(-1)
 
-    kernel = np.ones((n, n), np.uint8)
-    change = cv.morphologyEx(change, cv.MORPH_CLOSE, kernel)
-    return change
+    for __iter__ in range(max_iter):
+        av1 = np.average(rasters1, weights=weight)
+        av2 = np.average(rasters2, weights=weight)
+        X = rasters1 - av1
+        Y = rasters2 - av2
+        covxy = np.cov(X, Y, aweights=weight)
+        cov11 = covxy[0, 0]
+        cov22 = covxy[1, 1]
+        cov12 = covxy[1, 0]
+        cov21 = cov12
+
+        invcov22 = 1/cov22
+        d = cov12 * invcov22 * cov21 / cov11
+        v1 = 1 / cov11**0.5
+        if d > 0.999:
+            break
+        v2 = 1 / cov22**0.5
+
+        delta = v1 * X - v2 * Y
+
+        sigma2 = 2 * (1 - d ** 0.5)
+        Tj = delta ** 2 / sigma2
+
+        weight = 1 - SP.gammainc(0.5, Tj / 2)
+
+    res2 = np.array([1 if i > 0 else 0 for i in weight], np.uint8)
+    res2 = res2.reshape(sp)
+
+    if n != 0:
+        kernel = np.ones((n, n), np.uint8)
+        res2 = cv.morphologyEx(res2, cv.MORPH_CLOSE, kernel)
+    return res2
 
 def CDetect4(rasters1, rasters2, max_iter, N=1, n=0):
     #输入为已配准的图像，N为通道数，n为丢弃阈值，max_iter为最大迭代数
-    if N == 1:
-        return CDetect(rasters1, rasters2, n)
+    # if N == 1:
+    #     return CDetect(rasters1, rasters2, n)
 
     sp = rasters1[0].shape
     rasters1 = np.array([rasters1[i].reshape(-1) for i in range(N)], np.float64)

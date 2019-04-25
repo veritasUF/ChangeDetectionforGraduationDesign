@@ -32,7 +32,7 @@ for i in range(T):
     img1l = np.array([img1h[:, :, j] for j in range(N)])
     img2l = np.array([img2h[:, :, j] for j in range(N)])
 
-    change.append(CDetect4(img1l, img2l, 10, N, 0))
+    change.append(CDetect4(img1l, img2l, 4, N, 0))
 
     img1h = img1d.copy()
     img2h = img2d.copy()
@@ -42,7 +42,7 @@ for i in range(T):
 
 img1h = np.array([img1h[:, :, j] for j in range(N)])
 img2h = np.array([img2h[:, :, j] for j in range(N)])
-change.append(CDetect4(img1h, img2h, 10, N, 0))
+change.append(CDetect4(img1h, img2h, 4, N, 0))
 ls_ = change[T]
 for i in range(T-1, -1, -1):
     ls_ = cv.pyrUp(ls_)

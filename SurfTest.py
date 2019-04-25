@@ -5,8 +5,8 @@ from sklearn.cluster import KMeans
 from myfuncs import *
 from osgeo import gdal
 
-img1 = cv.imread('E:/Downloads/HEB1.tif', cv.IMREAD_UNCHANGED)
-img2 = cv.imread('E:/Downloads/HEB3.tif', cv.IMREAD_UNCHANGED)
+img1 = cv.imread('HEB4.tif', cv.IMREAD_GRAYSCALE)
+img2 = cv.imread('HEB2.tif', cv.IMREAD_GRAYSCALE)
 
 # img3, img4 = reg(img1, img2)
 # img1 = gdal.Open('HEBMS1.tif')
@@ -26,7 +26,7 @@ plt.imshow(img3, 'gray')
 plt.subplot(224)
 plt.imshow(img4, 'gray'), plt.show()
 '''
-a = CDetect(img1, img2, 0)
+a = CDetect(img1, img2, 4, 3)
 
 plt.figure()
 plt.subplot(131)
