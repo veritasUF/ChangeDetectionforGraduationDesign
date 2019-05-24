@@ -13,7 +13,7 @@ img1 = cv.imread('HEB4.tif', cv.IMREAD_GRAYSCALE)
 img2 = cv.imread('HEB2.tif', cv.IMREAD_GRAYSCALE)
 img1, img2 = reg(img1, img2)
 
-a = CDetect(img1, img2, 4, 3)
+# a = CDetect(img1, img2, 4, 3)
 
 kernel = np.ones((7, 7), np.uint8)  # 阈值到底是怎么确定的
 opening = cv.morphologyEx(img1, cv.MORPH_OPEN, kernel)
@@ -41,6 +41,14 @@ mask = cv.dilate(mask, kernel, iterations=4)
 
 # 掩住
 th3 = np.multiply(th3, mask)
+
+img1 = np.multiply(img1, mask)
+img2 = np.multiply(img1, mask)
+plt.imshow(img1, 'gray'), plt.show()
+print(time()-t0)
+a = CDetectpca(img1, img2, h=3, S=5, n=3)
+print(time()-t0)
+
 th3 = np.multiply(th3, a)
 
 # 腐蚀：将有宽度直线检测化为普通直线检测，腐蚀3像素，即限制最小宽度2.4米

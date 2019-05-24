@@ -197,6 +197,46 @@ def CDetect4(rasters1, rasters2, max_iter, N=1, n=0):
     return res2
 
 
+def CDetectpca(img1, img2, h, S, n):
+    sp = img1.shape
+    img1 = img1[sp[0] % h:, sp[1] % h:]
+    img2 = img2[sp[0] % h:, sp[1] % h:]
+    dif = np.array(abs(-1 * img1 + img2), np.uint8)
+    sp = dif.shape
+
+    def getblock(xd, x, y, h):
+        x = x - h // 2
+        y = y - h // 2
+        vec = np.zeros(h*h, np.int32)
+        for i in range(h):
+            for j in range(h):
+                vec[i*h+j] = xd[(x + i) % sp[0], (y + j) % sp[1]]
+
+        return vec
+
+    samples = []
+    H, W = np.array(sp) // h
+    for i, j in range(H), range(W):
+        samples.append(getblock(dif, i * h + h // 2, j * h + h // 2, h))
+
+    pca = PCA(n_components=S, whiten=False)
+    pca.fit(samples)
+    res = np.zeros((sp[0], sp[1], S))
+    for i in range(sp[0]):
+        for j in range(sp[1]):
+            res[i, j] = pca.transform(getblock(dif, i, j, h).reshape(1, -1))
+
+    res = res.reshape(-1, S)
+    ans = KMeans(n_clusters=2, init='k-means++', n_jobs=-1).fit_predict(res)
+    ans = ans.reshape(sp)
+    if ans.sum() * 2 < ans.size:
+        ans = 1 - ans
+
+    if n != 0:
+        kernel = np.ones((n, n), np.uint8)
+        ans = cv.morphologyEx(np.uint8(ans), cv.MORPH_CLOSE, kernel)
+    return ans
+
 
 
 
